@@ -17,10 +17,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6.0.2
+
       - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
           bundle: Ladybird.flatpak
           manifest-path: Meta/CMake/flatpak/org.ladybird.Ladybird.json
           arch: ${{ inputs.arch }}
           # Note: default cache key is 'flatpak-builder-${arch}-${sha256(manifestPath)}'
-      - run: ls -laR
+
+      - name: Bundle debug symbols
+        run: |
+          flatpak build-bundle --runtime --arch ${{ inputs.arch }} ./repo Ladybird-${{ inputs.arch }}-debug.flatpak org.ladybird.Ladybird.Debug master
+
+      - name: Upload debug symbols
+        uses: actions/upload-artifact@v6.0.0
+        with:
+          path: Ladybird-${{ inputs.arch }}-debug.flatpak
+          name: Ladybird-${{ inputs.arch }}-debug.flatpak
